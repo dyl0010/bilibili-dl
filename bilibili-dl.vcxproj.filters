@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{007d623f-2afa-4d65-bc21-00a59901e30d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\indicators">
+      <UniqueIdentifier>{9645f6dc-3111-4579-a3d7-5901135fb6d7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\bilibili_dl.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\indicators\indicators.hpp">
+      <Filter>src\indicators</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
