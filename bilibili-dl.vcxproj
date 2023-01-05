@@ -130,9 +130,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\bilibili_dl.cpp" />
+    <ClCompile Include="src\libcurl_wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\indicators\indicators.hpp" />
+    <ClInclude Include="src\libcurl_wrapper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

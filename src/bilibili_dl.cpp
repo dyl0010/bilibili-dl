@@ -1,13 +1,11 @@
 #include <iostream>
+#include <fstream>
 #include <cassert>
+#include <filesystem>
 
 #include <spdlog/spdlog.h>
 #include <gflags/gflags.h>
 #include <gtest/gtest.h>
-
-#include <curlpp/cURLpp.hpp>
-#include <curlpp/Easy.hpp>
-#include <curlpp/Options.hpp>
 
 #include <json/json.h>
 
@@ -15,7 +13,11 @@
 
 #include "indicators/indicators.hpp"
 
+#include "libcurl_wrapper.h"
+
 namespace bldl {
+
+    namespace fs = std::filesystem;
 
     //
     // response code.
@@ -30,6 +32,10 @@ namespace bldl {
             return true;
         spdlog::error("Invalid url for {}", url);
         return false;
+    }
+
+    static bool validate_filename([[maybe_unused]] const char* flagname, const std::string& filename) {
+        return exists(fs::path{ filename });  // exists from ADL
     }
 
     // 
@@ -64,6 +70,37 @@ namespace bldl {
         EXPECT_EQ("BV1xd4y1a7kz", extract_bvid("https://www.bilibili.com/video/BV1xd4y1a7kz/?spm_id_from=333.1007.tianma.1-1-1.click"));
         EXPECT_EQ("BV1ug411x75F", extract_bvid("https://www.bilibili.com/video/BV1ug411x75F?spm_id_from=333.1007.tianma.1-3-3.click"));
         EXPECT_EQ("", extract_bvid("https://www.google.com"));
+    }
+
+    void extract_bvids_from_file(const std::string& filename, std::set<std::string>& bvids) {
+        std::ifstream ifstrm(filename, std::ios::in);
+        std::string url;
+        size_t line_num = 0;
+
+        while (std::getline(ifstrm, url)) {
+            ++line_num;
+
+            auto bvid = extract_bvid(url);
+
+            if (bvid.empty()) {
+                spdlog::warn("bvid extracted from url ({}:{}:{}) is empty and this will be ignored", filename, line_num, url);
+                continue;
+            }
+
+            bvids.insert(bvid);
+        }
+    }
+
+    TEST(FileParsedHelpersTest, ExtractBvidFromFileFunc) {
+        std::set<std::string> bvids;
+
+        bvids.clear();
+        extract_bvids_from_file("i_wanna_download_videos.txt", bvids);
+        EXPECT_EQ(bvids, std::set<std::string>({ "BV1wv4y1B7UC", "BV19M41127S6", "BV1T14y1G7wm", }));
+
+        bvids.clear();
+        extract_bvids_from_file("i_wanna_download_videos_2.txt", bvids);
+        EXPECT_EQ(bvids, std::set<std::string>({ "BV1jg411x7FL", "BV1RG4y1m71J", "BV1zY411Z7PX", "BV1eM411m7mq", "BV19M41127S6",}));
     }
 
     std::string add_query(const std::string& req, const std::pair<std::string, std::string> &query) {
@@ -109,21 +146,20 @@ namespace bldl {
         return fwrite(ptr, size, nmemb, f);
     }
 
-    indicators::BlockProgressBar bar{
-        indicators::option::BarWidth{80},
-        indicators::option::Start{"["},
-        indicators::option::End{"]"},
-        indicators::option::PostfixText{"BV1ug411x75F"},
-        indicators::option::FontStyles{std::vector<indicators::FontStyle>{indicators::FontStyle::bold}}
-    };
-
-    static size_t progress_callback([[maybe_unused]] void* clientp, double dltotal, double dlnow, [[maybe_unused]] double ultotal, [[maybe_unused]] double ulnow)
+    static int progress_callback([[maybe_unused]] void* clientp, double dltotal, double dlnow, [[maybe_unused]] double ultotal, [[maybe_unused]] double ulnow)
     {
+        auto bar = static_cast<indicators::BlockProgressBar*>(clientp);
+
+        if (!bar) {
+            spdlog::warn("libcurl progress_callback() called with null(clientp)");
+            return CURLE_BAD_FUNCTION_ARGUMENT;
+        }
+
         indicators::show_console_cursor(false);
 
         auto progress = (dltotal == 0) ? 0 : (dlnow / dltotal);
         //spdlog::debug("dltotal: {}, dlnow: {}, progress: {}%", dltotal, dlnow, progress * 100);
-        bar.set_progress(progress * 100);
+        bar->set_progress(static_cast<float>(progress) * 100);
 
         indicators::show_console_cursor(true);
         return 0;
@@ -132,6 +168,9 @@ namespace bldl {
 
 DEFINE_string(url, "https://www.bilibili.com/video/BV1ug411x75F", "Video normal url of bilibili,like https://www.bilibili.com/video/BV1ug411x75F");
 DEFINE_validator(url, &bldl::validate_url);
+
+DEFINE_string(file, "i_wanna_download_videos.txt", "List of videos you want to download, default is current dictory i_wanna_download_videos.txt");
+DEFINE_validator(file, &bldl::validate_filename);
 
 int main(int argc, char* argv[]) {
     ::testing::InitGoogleTest(&argc, argv);
@@ -146,32 +185,18 @@ int main(int argc, char* argv[]) {
 
     const std::string bvid = bldl::extract_bvid(FLAGS_url);
     const std::string video_detail_req = bldl::add_query(bldl::x_web_interface_view, { "bvid", bvid });
-
     Json::Value video_detail;
+    std::string reply;
+    clwper::Request request;
 
-    try {
-        curlpp::Cleanup my_cleanup;
+    request.set_url(video_detail_req);
 
-        //curlpp::Easy my_request;
-        //my_request.setOpt<curlpp::Options::Url>(bldl::test_url);
-        //my_request.perform();
-
-        std::stringstream ss;
-        ss << curlpp::options::Url(video_detail_req);
-
-        if (std::string error; !Json::parseFromStream(Json::CharReaderBuilder{}, ss, &video_detail, &error)) {
-            spdlog::error("Json::parseFromStream error: {}", error);
-        }
-
-        spdlog::info(video_detail.toStyledString());
-
+    if (request.save_to_string(reply); !Json::Reader{}.parse(reply, video_detail, false)) {
+        spdlog::error("video_detail_req's reply parsed failure: {}", reply);
+        return -1;
     }
-    catch (curlpp::RuntimeError &e) {
-        spdlog::error("{}", e.what());
-    }
-    catch (curlpp::LogicError& e) {
-        spdlog::error("{}", e.what());
-    }
+
+    spdlog::info(video_detail.toStyledString());
 
     ///////////////////////////////////////////////////////////////////////////
     // video url
@@ -184,19 +209,14 @@ int main(int argc, char* argv[]) {
  
     Json::Value video_url;
 
-    try {
-        std::stringstream ss;
-        ss << curlpp::options::Url(video_url_req);
+    request.set_url(video_url_req);
 
-        if (std::string error; !Json::parseFromStream(Json::CharReaderBuilder{}, ss, &video_url, &error)) {
-            spdlog::error("Json::parseFromStream error: {}", error);
-        }
+    if (request.save_to_string(reply); !Json::Reader{}.parse(reply, video_url, false)) {
+        spdlog::error("video_url_req's reply parsed failure: {}", reply);
+        return -1;
+    }
 
-        spdlog::info(video_url.toStyledString());
-    }
-    catch (...) {
-        spdlog::error("exception catched.");
-    }
+    spdlog::info(video_url.toStyledString());
 
     ///////////////////////////////////////////////////////////////////////////
     // video stream
@@ -207,26 +227,23 @@ int main(int argc, char* argv[]) {
     const std::string video_stream_req = video_url["data"]["durl"][0]["url"].asString();
 
     spdlog::info("video_stream_req: {}", video_stream_req);
-    
-    FILE* file = nullptr;
 
-    if (file = fopen("bilibili_dl_test_file.mp4", "wb"); !file)
-        spdlog::error("error opening: bilibili_dl_test_file.mp4");
+    indicators::BlockProgressBar bar{
+        indicators::option::BarWidth{80},
+        indicators::option::Start{"["},
+        indicators::option::End{"]"},
+        indicators::option::PostfixText{"downnnnnnnnnnload~"},
+        indicators::option::FontStyles{std::vector<indicators::FontStyle>{indicators::FontStyle::bold}}
+    };
 
-    try {
-        curlpp::Easy req;
-        req.setOpt<curlpp::options::Url>(video_stream_req);
-        req.setOpt<curlpp::options::Referer>(bldl::referer);
-        req.setOpt<curlpp::options::UserAgent>(bldl::user_agent);
-        //req.setOpt<curlpp::options::Verbose>(true);
-        req.setOpt<curlpp::options::NoProgress>(false);
-        req.setOpt<curlpp::options::ProgressFunction>(std::bind(&bldl::progress_callback, nullptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-        req.setOpt<curlpp::options::WriteFunction>(std::bind(&bldl::write_file_callback, file, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-        req.perform();
-    }
-    catch (...) {
-        spdlog::error("exception catched.");
-    }
+    request.set_url(video_stream_req);
+    request.set_referer(bldl::referer);
+    request.set_user_agent(bldl::user_agent);
+    request.set_noprogress(false);
+    request.set_progress_data(&bar);
+    request.set_progress_function(bldl::progress_callback);
+   
+    request.save_to_file("bilibili-dl-test-video.mp4");
 
     return RUN_ALL_TESTS();
 }

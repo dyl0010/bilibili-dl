@@ -7,15 +7,24 @@
     <Filter Include="src\indicators">
       <UniqueIdentifier>{9645f6dc-3111-4579-a3d7-5901135fb6d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{539597a3-092b-41f7-ad62-336d887e5959}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\bilibili_dl.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libcurl_wrapper.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\indicators\indicators.hpp">
       <Filter>src\indicators</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libcurl_wrapper.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
