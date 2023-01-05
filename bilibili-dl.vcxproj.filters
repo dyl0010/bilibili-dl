@@ -15,7 +15,19 @@
     <ClCompile Include="src\bilibili_dl.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\libcurl_wrapper.cpp">
+    <ClCompile Include="src\bldl_libcurl.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bldl_helpers.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bldl_manager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bldl_task.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bldl_video_task.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -23,7 +35,19 @@
     <ClInclude Include="src\indicators\indicators.hpp">
       <Filter>src\indicators</Filter>
     </ClInclude>
-    <ClInclude Include="src\libcurl_wrapper.h">
+    <ClInclude Include="src\bldl_libcurl.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bldl_task.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bldl_video_task.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bldl_helpers.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bldl_constants.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

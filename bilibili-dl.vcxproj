@@ -130,11 +130,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\bilibili_dl.cpp" />
-    <ClCompile Include="src\libcurl_wrapper.cpp" />
+    <ClCompile Include="src\bldl_helpers.cpp" />
+    <ClCompile Include="src\bldl_manager.cpp" />
+    <ClCompile Include="src\bldl_task.cpp" />
+    <ClCompile Include="src\bldl_video_task.cpp" />
+    <ClCompile Include="src\bldl_libcurl.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\bldl_constants.h" />
+    <ClInclude Include="src\bldl_helpers.h" />
+    <ClInclude Include="src\bldl_task.h" />
+    <ClInclude Include="src\bldl_video_task.h" />
     <ClInclude Include="src\indicators\indicators.hpp" />
-    <ClInclude Include="src\libcurl_wrapper.h" />
+    <ClInclude Include="src\bldl_libcurl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,7 +4,7 @@
 
 #include <curl/curl.h>
 
-namespace clwper {
+namespace bldl {
 	class Request {
 	public:
 		explicit Request();

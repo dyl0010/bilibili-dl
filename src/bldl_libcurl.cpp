@@ -1,10 +1,10 @@
-#include "libcurl_wrapper.h"
+#include "bldl_libcurl.h"
 
 #include <cassert>
 
 #include <spdlog/spdlog.h>
 
-namespace clwper {
+namespace bldl {
 	Request::Request() : _handle(curl_easy_init()) {
 		assert(_handle);
 	}
@@ -60,6 +60,8 @@ namespace clwper {
 		curl_easy_setopt(_handle, CURLOPT_WRITEFUNCTION, 0);
 		curl_easy_setopt(_handle, CURLOPT_WRITEDATA, _file);
 		perform();
+
+		fclose(_file);
 
 		return true;
 	}
