@@ -1,15 +1,22 @@
 #include "bldl_libcurl.h"
+#include "bldl_helpers.h"
+#include "bldl_manager.h"
 
 #include <cassert>
 
 #include <spdlog/spdlog.h>
 
+#pragma warning(disable:4996)
+#include "indicators/indicators.hpp"
+
 namespace bldl {
 	Request::Request() : _handle(curl_easy_init()) {
 		assert(_handle);
+		//spdlog::info("_handle: {}", _handle);
 	}
 
 	Request::~Request() {
+		assert(_handle);
 		curl_easy_cleanup(_handle);
 	}
 
@@ -25,9 +32,9 @@ namespace bldl {
 		return curl_easy_setopt(_handle, CURLOPT_PROGRESSDATA, progress_data);
 	}
 
-	CURLcode Request::set_progress_function(ProgressFunction progress_func) const {
-		return curl_easy_setopt(_handle, CURLOPT_PROGRESSFUNCTION, progress_func);
-	}
+	//CURLcode Request::set_progress_function(ProgressFunction progress_func) const {
+	//	return curl_easy_setopt(_handle, CURLOPT_PROGRESSFUNCTION, progress_func);
+	//}
 
 	CURLcode Request::set_referer(const std::string referer) const {
 		return curl_easy_setopt(_handle, CURLOPT_REFERER, referer.c_str());
@@ -59,6 +66,7 @@ namespace bldl {
 		
 		curl_easy_setopt(_handle, CURLOPT_WRITEFUNCTION, 0);
 		curl_easy_setopt(_handle, CURLOPT_WRITEDATA, _file);
+		curl_easy_setopt(_handle, CURLOPT_PROGRESSFUNCTION, porgress_callback);
 		perform();
 
 		fclose(_file);
@@ -77,5 +85,29 @@ namespace bldl {
 		writerData->append(data, size * nmemb);
 
 		return size * nmemb;
+	}
+
+	int Request::porgress_callback(void* clientp, double dltotal, double dlnow, [[maybe_unused]] double ultotal, [[maybe_unused]] double ulnow) {
+		// TODO move implention to task.
+
+		auto bar_index = static_cast<size_t*>(clientp);
+
+		if (!bar_index) {
+			spdlog::info("libcurl progress_callback() called with null(clientp)");
+			return CURLE_BAD_FUNCTION_ARGUMENT;
+		}
+
+		indicators::show_console_cursor(false);
+
+		auto progress = (dltotal == 0) ? 0 : (dlnow / dltotal);
+		//spdlog::info("dltotal: {}, dlnow: {}, progress: {}%", dltotal, dlnow, progress * 100);
+		Manager::get_instance().progress_bar_mgr()[*bar_index].set_progress(static_cast<float>(progress) * 100);
+
+		if (Manager::get_instance().progress_bar_mgr()[*bar_index].is_completed()) {
+			Manager::get_instance().progress_bar_mgr()[*bar_index].mark_as_completed();
+		}
+
+		indicators::show_console_cursor(true);
+		return 0;
 	}
 }

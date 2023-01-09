@@ -50,5 +50,11 @@
     <ClInclude Include="src\bldl_constants.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="src\bldl_singleton.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bldl_manager.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

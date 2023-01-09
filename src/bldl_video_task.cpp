@@ -9,9 +9,13 @@ namespace bldl {
 
 		spdlog::debug("current _general_url: {}", _general_url);
 
+		assert(!general_url.empty());
+
 		//
 		// get video detail infomation.
 		_bvid = extract_bvid(_general_url);
+
+		_progress_bar->set_option(indicators::option::PrefixText(std::format("{}'s progress ", _bvid)));
 
 		auto detail_req = add_query(Constants::x_web_interface_view, { "bvid", _bvid });
 
@@ -25,7 +29,7 @@ namespace bldl {
 			return;
 		}
 
-		spdlog::debug(_detail_info.toStyledString());
+		//spdlog::debug(_detail_info.toStyledString());
 
 		if (_detail_info["code"].asInt() != Response::OK) {
 			spdlog::error("_detail_info responses error, {}", _bvid);
@@ -45,7 +49,7 @@ namespace bldl {
 			return;
 		}
 
-		spdlog::debug(_play_url.toStyledString());
+		//spdlog::debug(_play_url.toStyledString());
 
 		if (_play_url["code"].asInt() != Response::OK) {
 			spdlog::error("_play_url responses error, {}", _bvid);
@@ -55,16 +59,12 @@ namespace bldl {
 		_directed_link = _play_url["data"]["durl"][0]["url"].asString();
 
 		spdlog::debug("{}'s _directed_link: {}", _bvid, _directed_link);
-
-		//
-		// 
-		_progress_bar.set_option(indicators::option::BarWidth{ 80 });
-		_progress_bar.set_option(indicators::option::Start{ "[" });
-		_progress_bar.set_option(indicators::option::End{ "]" });
-		_progress_bar.set_option(indicators::option::PostfixText{ _bvid });
-		_progress_bar.set_option(indicators::option::FontStyles{ std::vector<indicators::FontStyle>{indicators::FontStyle::bold} });
 	}
 
+	size_t VideoTask::progress_bar_index() const {
+		return _progress_bar_index;
+	}
+	
 	bool VideoTask::run() {
 		if (_directed_link.empty()) {
 			spdlog::warn("{}'s _directed_link is empty");
@@ -75,8 +75,7 @@ namespace bldl {
 		_request.set_referer(Constants::referer);
 		_request.set_user_agent(Constants::user_agent);
 		_request.set_noprogress(false);
-		_request.set_progress_data(&_progress_bar);
-		_request.set_progress_function(progress_callback);
+		_request.set_progress_data(&_progress_bar_index);
 
 		return _request.save_to_file(std::format("{}-from-bilibili-dl.mp4", _bvid));
 	}

@@ -13,6 +13,8 @@ namespace bldl {
 	public:
 		VideoTask(const std::string &general_url);
 
+		size_t progress_bar_index() const;
+
 		bool run();
 	private:
 		std::string _bvid;
@@ -20,6 +22,5 @@ namespace bldl {
 		Json::Value _play_url;
 		Request _request;
 		std::string _directed_link;
-		indicators::BlockProgressBar _progress_bar;
 	};
 }

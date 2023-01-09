@@ -1,11 +1,9 @@
+#include "bldl_helpers.h"
+#include "bldl_constants.h"
+
 #include <fstream>
 #include <cassert>
 #include <filesystem>
-
-#include "bldl_constants.h"
-
-#pragma warning(disable:4996)
-#include "indicators/indicators.hpp"
 
 #include <curl/curl.h>
 #include <spdlog/spdlog.h>
@@ -34,6 +32,43 @@ namespace bldl {
         EXPECT_EQ("", extract_bvid("https://www.google.com"));
     }
 
+    void read_lines(const std::string& filename, std::set<std::string>& lines) {
+        std::ifstream ifstrm(filename, std::ios::in);
+        std::string line;
+        size_t line_num = 0;
+
+        while (std::getline(ifstrm, line)) {
+            ++line_num;
+
+            if (line.empty()) {
+                spdlog::warn("line ({}:{}) is empty and this will be ignored", filename, line_num);
+                continue;
+            }
+
+            lines.insert(line);
+        }
+    }
+
+    TEST(FileParsedHelpersTest, ReadLinesFunc) {
+        std::set<std::string> lines;
+
+        lines.clear();
+        read_lines("i_wanna_download_videos.txt", lines);
+        EXPECT_EQ(lines, std::set<std::string>({
+            "https://www.bilibili.com/video/BV11A411S7zS?spm_id_from=333.1007.tianma.1-2-2.click",
+            "https://www.bilibili.com/video/BV1jG4y1E7RY?spm_id_from=333.1007.tianma.2-2-5.click",
+            "https://www.bilibili.com/video/BV18K41127YW?spm_id_from=333.1007.tianma.1-1-1.click",}));
+
+        lines.clear();
+        read_lines("i_wanna_download_videos_2.txt", lines);
+        EXPECT_EQ(lines, std::set<std::string>({
+            "https://www.bilibili.com/video/BV1jg411x7FL?spm_id_from=333.1007.tianma.2-2-5.click",
+            "https://www.bilibili.com/video/BV1RG4y1m71J?spm_id_from=333.1007.tianma.2-2-5.click",
+            "https://www.bilibili.com/video/BV1zY411Z7PX?spm_id_from=333.1007.tianma.1-1-1.click",
+            "https://www.bilibili.com/video/BV1eM411m7mq?spm_id_from=333.1007.tianma.3-2-8.click",
+            "https://www.bilibili.com/video/BV19M41127S6?spm_id_from=333.1007.tianma.2-2-5.click",}));
+    }
+
     void extract_bvids_from_file(const std::string& filename, std::set<std::string>& bvids) {
         std::ifstream ifstrm(filename, std::ios::in);
         std::string url;
@@ -58,7 +93,7 @@ namespace bldl {
 
         bvids.clear();
         extract_bvids_from_file("i_wanna_download_videos.txt", bvids);
-        EXPECT_EQ(bvids, std::set<std::string>({ "BV1wv4y1B7UC", "BV19M41127S6", "BV1T14y1G7wm", }));
+        EXPECT_EQ(bvids, std::set<std::string>({ "BV11A411S7zS", "BV1jG4y1E7RY", "BV18K41127YW", }));
 
         bvids.clear();
         extract_bvids_from_file("i_wanna_download_videos_2.txt", bvids);
@@ -100,24 +135,5 @@ namespace bldl {
     TEST(UrlParsedHelpersTest, AddQueriesFunc) {
         EXPECT_EQ("https://api.bilibili.com/x/player/playurl?avid=771650346&cid=796049063&", add_queries("https://api.bilibili.com/x/player/playurl", { {"avid", "771650346"}, {"cid", "796049063"} }));
         //EXPECT_EQ("https://api.bilibili.com/x/player/playurl", add_queries("https://api.bilibili.com/x/player/playurl", {}));
-    }
-
-    int progress_callback([[maybe_unused]] void* clientp, double dltotal, double dlnow, [[maybe_unused]] double ultotal, [[maybe_unused]] double ulnow)
-    {
-        auto bar = static_cast<indicators::BlockProgressBar*>(clientp);
-
-        if (!bar) {
-            spdlog::warn("libcurl progress_callback() called with null(clientp)");
-            return CURLE_BAD_FUNCTION_ARGUMENT;
-        }
-
-        indicators::show_console_cursor(false);
-
-        auto progress = (dltotal == 0) ? 0 : (dlnow / dltotal);
-        //spdlog::debug("dltotal: {}, dlnow: {}, progress: {}%", dltotal, dlnow, progress * 100);
-        bar->set_progress(static_cast<float>(progress) * 100);
-
-        indicators::show_console_cursor(true);
-        return 0;
     }
 }

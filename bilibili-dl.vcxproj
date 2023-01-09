@@ -139,6 +139,8 @@
   <ItemGroup>
     <ClInclude Include="src\bldl_constants.h" />
     <ClInclude Include="src\bldl_helpers.h" />
+    <ClInclude Include="src\bldl_manager.h" />
+    <ClInclude Include="src\bldl_singleton.h" />
     <ClInclude Include="src\bldl_task.h" />
     <ClInclude Include="src\bldl_video_task.h" />
     <ClInclude Include="src\indicators\indicators.hpp" />
