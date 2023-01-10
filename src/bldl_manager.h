@@ -23,6 +23,7 @@ namespace bldl {
 	protected:
 		Manager();
 
+		indicators::ProgressSpinner _progress_spinner;
 		ProgressBarMgr _progress_bar_mgr;
 		std::vector<std::shared_ptr<Task>> _tasks;
 

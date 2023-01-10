@@ -351,6 +351,4 @@ MigrationBackup/
 
 
 # yours
-i_wanna_download_videos.txt
-
-i_wanna_download_videos_2.txt
+i_wanna_download_videos*.txt

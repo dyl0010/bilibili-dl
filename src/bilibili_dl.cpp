@@ -37,7 +37,7 @@ static bool validate_filename([[maybe_unused]] const char* flagname, const std::
 DEFINE_string(url, "https://www.bilibili.com/video/BV1ug411x75F", "Video normal url of bilibili,like https://www.bilibili.com/video/BV1ug411x75F");
 DEFINE_validator(url, &validate_url);
 
-DEFINE_string(file, "i_wanna_download_videos_2.txt", "List of videos you want to download, default is current dictory i_wanna_download_videos.txt");
+DEFINE_string(file, "i_wanna_download_videos_3.txt", "List of videos you want to download, default is current dictory i_wanna_download_videos.txt");
 DEFINE_validator(file, &validate_filename);
 
 // end.
