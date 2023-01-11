@@ -56,5 +56,8 @@
     <ClInclude Include="src\bldl_manager.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="src\bldl_version.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

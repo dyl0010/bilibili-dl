@@ -19,6 +19,7 @@
 #include "bldl_video_task.h"
 #include "bldl_helpers.h"
 #include "bldl_manager.h"
+#include "bldl_version.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // About command line parameters parsed.
@@ -44,7 +45,10 @@ DEFINE_validator(file, &validate_filename);
 ///////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char* argv[]) {
+
     ::testing::InitGoogleTest(&argc, argv);
+
+    gflags::SetVersionString(bldl::Version::_info);
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
     //spdlog::set_level(spdlog::level::debug);

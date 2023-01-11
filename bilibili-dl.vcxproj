@@ -142,6 +142,7 @@
     <ClInclude Include="src\bldl_manager.h" />
     <ClInclude Include="src\bldl_singleton.h" />
     <ClInclude Include="src\bldl_task.h" />
+    <ClInclude Include="src\bldl_version.h" />
     <ClInclude Include="src\bldl_video_task.h" />
     <ClInclude Include="src\indicators\indicators.hpp" />
     <ClInclude Include="src\bldl_libcurl.h" />
