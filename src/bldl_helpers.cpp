@@ -12,6 +12,25 @@
 namespace bldl {
     namespace fs = std::filesystem;
 
+    std::string extract_auid(const std::string& auu) {
+        if (!auu.starts_with(Constants::url_bilibili_audio)) {
+            spdlog::error("extract_auid invalid parameter: {}", auu);
+            return "";
+        }
+
+        auto with_au = std::format("{}au", Constants::url_bilibili_audio);
+        auto it = std::find_if(auu.begin() + with_au.length(), auu.end(), [](char c) {return !std::isdigit(c); });
+        auto rnt = std::string(auu.begin() + with_au.length(), it);
+
+        spdlog::debug("bldl::extract_auid() return: {}", rnt);
+        return rnt;
+    }
+
+    TEST(UrlParsedHelpersTest, ExtractAuidFunc) {
+        EXPECT_EQ("10652", extract_auid("https://www.bilibili.com/audio/au10652"));
+        // TODO more tests cases
+    }
+
     std::string extract_bvid(const std::string& bvu) {
         if (!bvu.starts_with(Constants::url_bilibili_video)) {
             spdlog::error("extract_bvid invalid parameter: {}", bvu);

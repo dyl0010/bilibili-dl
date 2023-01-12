@@ -11,12 +11,12 @@ namespace bldl {
 
 		assert(!general_url.empty());
 
-		//
-		// get video detail infomation.
 		_bvid = extract_bvid(_general_url);
 
 		_progress_bar->set_option(indicators::option::PrefixText(std::format("{}'s progress ", _bvid)));
 
+		//
+		// get video detail infomation.
 		auto detail_req = add_query(Constants::x_web_interface_view, { "bvid", _bvid });
 
 		_request.set_url(detail_req);
@@ -59,10 +59,6 @@ namespace bldl {
 		_directed_link = _play_url["data"]["durl"][0]["url"].asString();
 
 		spdlog::debug("{}'s _directed_link: {}", _bvid, _directed_link);
-	}
-
-	size_t VideoTask::progress_bar_index() const {
-		return _progress_bar_index;
 	}
 	
 	bool VideoTask::run() {

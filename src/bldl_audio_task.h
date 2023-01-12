@@ -9,14 +9,13 @@
 #include <json/json.h>
 
 namespace bldl {
-	class VideoTask : public Task {
+	class AudioTask : public Task {
 	public:
-		VideoTask(const std::string &general_url);
+		AudioTask(const std::string& general_url);
 
 		bool run() override;
 	private:
-		std::string _bvid;
-		Json::Value _detail_info;
+		std::string _auid;
 		Json::Value _play_url;
 		Request _request;
 		std::string _directed_link;

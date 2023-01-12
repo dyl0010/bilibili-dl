@@ -5,7 +5,6 @@
 
 #include "bldl_manager.h"
 #include "bldl_video_task.h"
-#include "bldl_helpers.h"
 #include "bldl_constants.h"
 
 namespace bldl {
@@ -15,29 +14,6 @@ namespace bldl {
 		_progress_spinner.set_option(indicators::option::SpinnerStates{ std::vector<std::string>{"|", "/", "-", "\\",} });
 
 		_progress_bar_mgr.set_option(indicators::option::HideBarWhenComplete{ false });
-	}
-
-	void Manager::parsed_address_file(const std::string &path) {
-		std::set<std::string> adres;
-		
-		read_lines(path, adres);
-
-		size_t finished = 0;
-
-		_progress_spinner.set_option(indicators::option::MaxProgress(adres.size()));
-
-		for (auto it = adres.begin(); it != adres.end(); ++it) {
-			bldl::Manager::get_instance().add_task(std::make_shared<bldl::VideoTask>(*it));
-
-			_progress_spinner.set_option(indicators::option::PostfixText(std::format("{}/{}", ++finished, adres.size())));
-
-			_progress_spinner.tick();
-
-			if (_progress_spinner.is_completed()) {
-				_progress_spinner.mark_as_completed();
-				break;
-			}
-		}
 	}
 
 	void Manager::add_task(std::shared_ptr<Task> task) {

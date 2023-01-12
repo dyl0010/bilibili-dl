@@ -44,6 +44,10 @@ namespace bldl {
 		return curl_easy_setopt(_handle, CURLOPT_USERAGENT, user_agent.c_str());
 	}
 
+	CURLcode Request::set_accept_encoding(const char* enc) const {
+		return curl_easy_setopt(_handle, CURLOPT_ACCEPT_ENCODING, enc);
+	}
+
 	void Request::save_to_string(std::string& str) const {
 		assert(_handle);
 

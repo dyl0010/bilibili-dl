@@ -10,6 +10,7 @@ namespace bldl {
 	public:
 		Task(const std::string general_url);
 		
+		size_t progress_bar_index() const;
 		void set_progress_bar_index(size_t index);
 		std::shared_ptr<indicators::BlockProgressBar> &progress_bar();
 

@@ -30,6 +30,9 @@
     <ClCompile Include="src\bldl_video_task.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\bldl_audio_task.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\indicators\indicators.hpp">
@@ -57,6 +60,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="src\bldl_version.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bldl_audio_task.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

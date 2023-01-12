@@ -130,6 +130,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\bilibili_dl.cpp" />
+    <ClCompile Include="src\bldl_audio_task.cpp" />
     <ClCompile Include="src\bldl_helpers.cpp" />
     <ClCompile Include="src\bldl_manager.cpp" />
     <ClCompile Include="src\bldl_task.cpp" />
@@ -137,6 +138,7 @@
     <ClCompile Include="src\bldl_libcurl.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\bldl_audio_task.h" />
     <ClInclude Include="src\bldl_constants.h" />
     <ClInclude Include="src\bldl_helpers.h" />
     <ClInclude Include="src\bldl_manager.h" />

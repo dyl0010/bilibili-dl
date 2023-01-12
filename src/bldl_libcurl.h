@@ -22,6 +22,7 @@ namespace bldl {
 		//CURLcode set_progress_function(ProgressFunction progress_func) const;
 		CURLcode set_referer(const std::string referer) const;
 		CURLcode set_user_agent(const std::string user_agent) const;
+		CURLcode set_accept_encoding(const char*) const;
 
 		void save_to_string(std::string &str) const;
 		bool save_to_file(const std::string& filename);

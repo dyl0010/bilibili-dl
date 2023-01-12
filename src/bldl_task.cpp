@@ -8,6 +8,10 @@ namespace bldl {
 		_progress_bar->set_option(indicators::option::ForegroundColor(indicators::Color::green));
 	}
 
+	size_t Task::progress_bar_index() const {
+		return _progress_bar_index;
+	}
+
 	void Task::set_progress_bar_index(size_t index) {
 		_progress_bar_index = index;
 	}

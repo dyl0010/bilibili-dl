@@ -7,6 +7,7 @@
 #include "indicators/indicators.hpp"
 
 namespace bldl {
+    std::string extract_auid(const std::string& auu);
     std::string extract_bvid(const std::string& bvu);
     void read_lines(const std::string& filename, std::set<std::string>& lines);
     void extract_bvids_from_file(const std::string& filename, std::set<std::string>& bvids);

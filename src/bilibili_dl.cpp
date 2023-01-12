@@ -17,6 +17,7 @@
 #include "bldl_helpers.h"
 #include "bldl_libcurl.h"
 #include "bldl_video_task.h"
+#include "bldl_audio_task.h"
 #include "bldl_helpers.h"
 #include "bldl_manager.h"
 #include "bldl_version.h"
@@ -38,7 +39,7 @@ static bool validate_filename([[maybe_unused]] const char* flagname, const std::
 DEFINE_string(url, "https://www.bilibili.com/video/BV1ug411x75F", "Video normal url of bilibili,like https://www.bilibili.com/video/BV1ug411x75F");
 DEFINE_validator(url, &validate_url);
 
-DEFINE_string(file, "i_wanna_download_videos_3.txt", "List of videos you want to download, default is current dictory i_wanna_download_videos.txt");
+DEFINE_string(file, "i_wanna_download_music.txt", "List of audios you want to download, default is current dictory i_wanna_download_music.txt");
 DEFINE_validator(file, &validate_filename);
 
 // end.
@@ -54,20 +55,33 @@ int main(int argc, char* argv[]) {
     //spdlog::set_level(spdlog::level::debug);
 
     //
-    // single task test
+    // single video task test
+    // now it's incorrect!
+    // TODO fix: _progress_bar_mgr is a member of bldl::Manager, 
+    // so if you do not use the manager, the _progress_bar_mgr will not be created properly.
     
     //bldl::VideoTask vt("https://www.bilibili.com/video/BV11A411S7zS?spm_id_from=333.1007.tianma.1-2-2.click");
     //vt.run();
 
-    //std::cout << '\n';
+    //
+    // Now, single download task also must use the bldl::Manager.
 
-    //bldl::VideoTask vt2("https://www.bilibili.com/video/BV18K41127YW?spm_id_from=333.1007.tianma.1-1-1.click");
-    //vt2.run();
+    //bldl::Manager::get_instance().add_task(std::make_shared<bldl::VideoTask>("https://www.bilibili.com/video/BV18K41127YW?spm_id_from=333.1007.tianma.1-1-1.click"));
+    //bldl::Manager::get_instance().run_tasks();
+
+    //
+    // Similarly, an example of downloading audio.
+
+    //bldl::Manager::get_instance().add_task(std::make_shared<bldl::AudioTask>("https://www.bilibili.com/audio/au12655"));
+    //bldl::Manager::get_instance().run_tasks();
 
     //
     // parallel multiple tasks test
 
-    bldl::Manager::get_instance().parsed_address_file(FLAGS_file);
+    //bldl::Manager::get_instance().parsed_address_file<bldl::VideoTask>("i_wanna_download_videos_3.txt");
+    //bldl::Manager::get_instance().run_tasks();
+
+    bldl::Manager::get_instance().parsed_address_file<bldl::AudioTask>(FLAGS_file);
     bldl::Manager::get_instance().run_tasks();
 
     std::clog << "\nDownload finished!" << std::endl;
